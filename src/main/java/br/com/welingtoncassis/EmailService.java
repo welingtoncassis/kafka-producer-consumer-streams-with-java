@@ -12,11 +12,12 @@ import java.util.Properties;
 
 public class EmailService {
     public static void main(String[] args) {
-        var service = new KafkaService(
+        try (var service = new KafkaService(
                 "ECOMMERCE_SEND_EMAIL",
                 EmailService::parse
-        );
-        service.run();
+        )) {
+            service.run();
+        }
     }
 
     public static void parse(ConsumerRecord<String, String> record) {
