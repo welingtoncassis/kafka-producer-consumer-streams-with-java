@@ -9,16 +9,17 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.UUID;
 
 class KafkaService implements Closeable {
     private final KafkaConsumer<String, String> consumer;
     private final String topic;
-    private final ConsumerFunctions parse;
+    private final ConsumerFunction parse;
 
-    public KafkaService(String topic, ConsumerFunctions parse) {
+    public KafkaService(String groupId, String topic, ConsumerFunction parse) {
         this.topic = topic;
         this.parse = parse;
-        this.consumer = new KafkaConsumer<>(properties());
+        this.consumer = new KafkaConsumer<>(properties(groupId));
         // escutar topico
         this.consumer.subscribe(Collections.singletonList(this.topic));
     }
@@ -36,7 +37,7 @@ class KafkaService implements Closeable {
         }
     }
 
-    public static Properties properties() {
+    public static Properties properties(String groupId) {
         var properties = new Properties();
         // onde ele vai escutar
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
@@ -46,7 +47,9 @@ class KafkaService implements Closeable {
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 
         // um é como se fosse uma fila para cada topico podendo ter varias filas num topico
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, EmailService.class.getSimpleName());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString());
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
         return properties;
     }
 
