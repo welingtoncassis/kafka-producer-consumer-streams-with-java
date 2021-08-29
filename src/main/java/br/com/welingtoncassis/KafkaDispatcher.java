@@ -10,12 +10,12 @@ import java.io.Closeable;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
- class KafkaDispatcher implements Closeable {
+ class KafkaDispatcher<T> implements Closeable {
 
-    private final KafkaProducer<String, String> producer;
+    private final KafkaProducer<String, T> producer;
 
     KafkaDispatcher() {
-        this.producer = new KafkaProducer<String, String>(properties());
+        this.producer = new KafkaProducer<>(properties());
     }
 
     private static Properties properties() {
@@ -26,12 +26,12 @@ import java.util.concurrent.ExecutionException;
 
         //deserializar de bytes para string
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GsonSerializer.class.getName());
         return properties;
     }
 
-     void send(String topic, String key, String value) throws ExecutionException, InterruptedException {
-        var record = new ProducerRecord<String, String>(topic, key, value);
+     void send(String topic, String key, T value) throws ExecutionException, InterruptedException {
+        var record = new ProducerRecord<String, T>(topic, key, value);
         Callback callback = (data, ex) -> {
             if (ex != null) {
                 ex.printStackTrace();
