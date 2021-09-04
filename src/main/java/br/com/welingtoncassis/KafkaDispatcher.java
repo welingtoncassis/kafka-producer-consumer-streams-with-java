@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
                 ex.printStackTrace();
                 return;
             }
-            System.out.println("Sucesso enviando" + data.topic() + ":::partition " + data.partition() + "/ offset " + data.offset() + "/ timestamp " + data.timestamp());
+            System.out.println("Sucesso enviando para " + data.topic() + ":::partition " + data.partition() + "/ offset " + data.offset() + "/ timestamp " + data.timestamp());
         };
         this.producer.send(record, callback).get();
     }
